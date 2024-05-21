@@ -4,36 +4,18 @@ import hashlib
 sys.path.append('../')
 
 import numpy as np
-import torch
 import random
-import tqdm
-import time
-import os
 import matplotlib.pyplot as plt
-from PIL import Image
-from pathlib import Path
-import copy
-import pickle
-import os
 import torch
 import tqdm
-from sklearn import metrics
-
 from src.modelutils import get_functions
 from src.checkpoints import load_checkpoint
-from src.datautils import set_seed, get_imagenet, MixDataset, un_normalize_imagenet, show_imagenet_image, show_imagenet
-from src.ModifiedResNet import resnet50 as Mresnet50
-from torch.utils.data import Dataset, DataLoader, Subset
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
+from src.datautils import set_seed, get_imagenet, MixDataset
 import gc
-import copy
 import os
-from src.attribution_map_generator import get_attribution_map, get_attribution_map_fast
+from src.attribution_map_generator import get_attribution_map
 from src.modelutils import find_layers
 from src.pruner import make_obs_model
-import torchvision.transforms.functional as F
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
 import argparse
 import json
@@ -390,10 +372,6 @@ else:
     raise ValueError(f"bad model {args.model}")
 output_path = f"/nfs/scistore19/alistgrp/{user_name}/sparse-interpretability/newRuns/NoTrojan/"  # save OBS pruned model here
 
-# mapoutputdir=f"/nfs/scistore19/alistgrp/{user_name}/sparse-interpretability/newRuns/{'NoTrojan_'}ResNet_ImageNet_{args.model}_sparsity_Tuning_separate_cleanOBC_{args.augs_per_sample}augs_{args.method}_maps" #save output attention maps on this folder
-# imageoutputdir=f"/nfs/scistore19/alistgrp/{user_name}/sparse-interpretability/newRuns/{'NoTrojan_'}ResNet_ImageNet_{args.model}_sparsity_Tuning_separate_cleanOBC_{args.augs_per_sample}augs_{args.method}_images" #save output attention maps on this folder
-# os.makedirs(imageoutputdir, exist_ok=True)
-
 
 # load original  (dense) model
 get_model, test, run = get_functions(model_arch)
@@ -496,10 +474,6 @@ if args.compute_saliencies:
     ORG_model = ORG_model.eval()
     ORG_model = ORG_model.cuda()
 
-    if False:
-        model_debugger = get_debugger_model()
-        model_debugger = model_debugger.eval()
-        model_debugger = model_debugger.cuda()
 
     ### Create a list of training samples
     training_samples = []
@@ -659,10 +633,7 @@ if args.compute_saliencies:
             saliency_maps = torch.sum(torch.abs(
                 class_visualization_save(models, image, None, label, example_id + 10000000 * random.random(),
                                          model_arch, mapoutputdir, [approach_name])[0]), dim=1)
-            # plt.imshow(saliency_maps[0])
-            # title = f"ORG_{approach_name}_{example_id}"
-            # plt.title(title)
-            # plt.savefig(f"{imageoutputdir}/{title}.png", bbox_inches="tight")
+
             plt.imshow(saliency_maps[0])
             title = f"SparseGPT_{approach_name}_{example_id}"
             plt.title(title)
@@ -671,6 +642,6 @@ if args.compute_saliencies:
             gc.collect()
             torch.cuda.empty_cache()
 
-# calculate_confidence_keep_remove_auc(ORG_model, mapoutputdir, refoutputdir, model_prefix_arr=["tuned", "ORG"])
+
 calculate_confidence_keep_remove_auc(ORG_model, mapoutputdir, refoutputdir,
                                      model_prefix_arr=["ORG", "cleanOBC", "debugger"])

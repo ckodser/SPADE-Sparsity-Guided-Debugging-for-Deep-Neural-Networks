@@ -2,84 +2,29 @@ import sys
 
 sys.path.append('../')
 
-import numpy as np
-import torch
-import random
-import tqdm
-import time
-import copy
-import os
-from torch.utils.data import Dataset, DataLoader, Subset
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
-import os
-from torchvision.utils import save_image
-import matplotlib.pyplot as plt
-from PIL import Image
-from pathlib import Path
 
+from torch.utils.data import Dataset, DataLoader, Subset
 import numpy as np
-import torch
 import random
-import tqdm
-import time
-import os
 import matplotlib.pyplot as plt
-from PIL import Image
-from pathlib import Path
-import copy
-import pickle
-import os
 import torch
 import tqdm
 from sklearn import metrics
 import hashlib
 import json
+from captum.attr import *
+import gc
+from src.attribution_map_generator import get_attribution_map
+from captum.attr import *
+from src.modelutils import find_layers
 import math
+import argparse
 
 from src.datautils import set_seed, get_imagenet, MixDataset, un_normalize_imagenet, show_imagenet_image, show_imagenet
-from src.ModifiedResNet import resnet50 as Mresnet50
 from src.label_maps import CLASS_DICT
-
-import src.vis_helpers as vis_helpers
-from src.vis_helpers import get_lime_explanation
-
 from src.pruner import make_obs_model
 from src.checkpoints import load_checkpoint
 from src.modelutils import get_functions, attention_mesure, VisualizeImageGrayscale
-
-from lucent.optvis import render, param, transform, objectives
-from captum.attr import (
-    GradientShap,
-    DeepLift,
-    DeepLiftShap,
-    IntegratedGradients,
-    LayerConductance,
-    NeuronConductance,
-    NoiseTunnel,
-    Occlusion,
-    NoiseTunnel,
-    Saliency
-)
-from captum.attr import visualization as viz
-
-from src.LRP.Relative_Attributing_Propagation.modules.resnet import resnet50 as LRPresnet50
-from torch.autograd import Variable
-from lime import lime_image
-from pytorch_grad_cam import GradCAM, HiResCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad
-from captum.attr import *
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
-import gc
-import copy
-import os
-from src.attribution_map_generator import get_attribution_map, get_attribution_map_fast
-from src.modelutils import find_layers
-
-from captum.attr import *
-from src.modelutils import find_layers
-import math
-
-import argparse
 
 parser = argparse.ArgumentParser()
 
